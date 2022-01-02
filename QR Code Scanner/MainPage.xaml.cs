@@ -1,5 +1,4 @@
-﻿using QR_Code_Scanner.Managers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,19 +30,13 @@ using Windows.ApplicationModel.DataTransfer;
 
 using Windows.UI.Core;
 using QR_Code_Scanner.Business;
+using QR_Library.Managers;
 
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace QR_Code_Scanner
 {
-    /// <summary>
-    /// Delegate to be triggered on QR capture
-    /// </summary>
-    /// <param name="qrmessage"></param>
-    public delegate void QrCodeDecodedDelegate(string qrmessage);
-
-
     public sealed partial class MainPage : Page
     {
         QRCameraManager cameraManager;
@@ -72,7 +65,7 @@ namespace QR_Code_Scanner
             Application.Current.LeavingBackground += Current_LeavingBackground;
             cameraManager.EnumerateCameras(cmbCameraSelect);
 
-            this.donateLnk.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL2&source=url");
+            this.donateLnk.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
             this.donateLnkGenerate.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
             this.donateLnkOpen.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
         }

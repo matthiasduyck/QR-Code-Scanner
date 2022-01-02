@@ -17,7 +17,15 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
-    <PackageCertificateKeyFile>QR Code Scanner_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateKeyFile>QR Code Scanner_StoreKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>B0609E6AA917E534941E476DD9E26EF62D04635E</PackageCertificateThumbprint>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxPackageDir>C:\Users\Matthias\Documents\</AppxPackageDir>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
+    <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
+    <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -116,27 +124,41 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\AppStatus.cs">
+      <Link>Business\AppStatus.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\ComboboxItem.cs">
+      <Link>Business\ComboboxItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\FrameSourceInformation.cs">
+      <Link>Business\FrameSourceInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\BarcodeManager.cs">
+      <Link>Managers\BarcodeManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\MessageManager.cs">
+      <Link>Managers\MessageManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\QRCameraManager.cs">
+      <Link>Managers\QRCameraManager.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Business\AppStatus.cs" />
-    <Compile Include="Business\ComboboxItem.cs" />
-    <Compile Include="Business\FrameSourceInformation.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Managers\BarcodeManager.cs" />
-    <Compile Include="Managers\MessageManager.cs" />
-    <Compile Include="Managers\QRCameraManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="QR Code Scanner_StoreKey.pfx" />
     <None Include="QR Code Scanner_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

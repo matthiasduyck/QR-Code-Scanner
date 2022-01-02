@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="bea80bd1-8abe-4337-a12b-10794667eb3e"
-    Publisher="CN=Matthias"
-    Version="1.0.0.0" />
+    Name="59867MatthiasDuyck.QRCodeScanner"
+    Publisher="CN=DA2D21D8-3390-4818-A996-7B7A779D9778"
+    Version="0.0.2.0" />
 
-  <mp:PhoneIdentity PhoneProductId="bea80bd1-8abe-4337-a12b-10794667eb3e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="aa66e25b-3d6d-4f74-926a-c7f588a8c11f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>QR Code Scanner</DisplayName>
-    <PublisherDisplayName>Matthias</PublisherDisplayName>
+    <PublisherDisplayName>Matthias Duyck</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

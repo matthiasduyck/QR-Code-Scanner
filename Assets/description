@@ -1,0 +1,8 @@
+QR Code Scanner is a simple app that allows you to scan and generate QR Codes. Scan using your webcam or read in an image file.
+
+
+Usage notes:
+- If scanning from another display (such as a smartphone), you may need to adjust the brightness down for the code to be recognized.
+
+- Make sure to fill the preview screen with the code.
+
