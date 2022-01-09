@@ -1,5 +1,6 @@
 ﻿<Page
     x:Class="QR_Code_Scanner_PRO.MainPage"
+    xmlns:src="using:QR_Code_Scanner_PRO"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:QR_Code_Scanner_PRO"
@@ -8,8 +9,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-
+    <Grid Tapped="GrdClickCapture_Tapped">
         <Pivot x:Name="TabsView" SelectionChanged="TabsView_SelectionChanged">
             <PivotItem Name="scan" Header="Scan QR Code">
                 <!--Pivot content goes here-->
@@ -33,7 +33,7 @@
 
                         <TextBlock VerticalAlignment="Top" Height="30" Text="Text"/>
                         <TextBox Name="txtText" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText=""></TextBox>
-                        
+
 
 
 
@@ -45,7 +45,7 @@
 
             </PivotItem>
             <PivotItem Header="Open QR Code Image">
-                <ScrollViewer VerticalScrollBarVisibility="Visible">
+                <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
                     <Grid Margin="20,20,20,20">
                         <TextBlock VerticalAlignment="Top" Height="30" Text="Open an image containing a QR Code:"/>
                         <Button Name="btnOpenQRImage" VerticalAlignment="Top" Height="35" Margin="0,30,0,0" Click="BtnOpenQRImage_ClickAsync">Open Image File</Button>
@@ -53,6 +53,66 @@
                     </Grid>
                 </ScrollViewer>
             </PivotItem>
+            <PivotItem Header="Scanning History">
+                <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
+                    <Grid Margin="20,20,20,20">
+                        <ListView Margin="0,90,0,0" x:Name="lvHistory">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="local:HistoryQRItemWrapper">
+                                    <Grid Margin="0,0,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind TextContent}" Margin="0,6,0,0" 
+                    Style="{ThemeResource BaseTextBlockStyle}"/>
+                                        <TextBlock  Grid.Column="0" Grid.Row="1" Text="" Margin="0,0,0,6" 
+                    Style="{ThemeResource BodyTextBlockStyle}"/>
+                                        <Grid Grid.RowSpan="2" Grid.Column="1">
+                                            <Button Name="btnGenerateStoredWifiQRCode" HorizontalAlignment="Right">View Details + QR</Button>
+                                            <!--<HyperlinkButton Name="btnGenerateStoredWifiQRCode" Click="BtnShowStoredWifiData_Click" HorizontalAlignment="Right">View Details + QR</HyperlinkButton>-->
+                                        </Grid>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </ScrollViewer>
+            </PivotItem>
         </Pivot>
+        <Grid MinHeight="150" Name="GrdQRResultUrl" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">URL QR code found</TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    URL: <Hyperlink x:Name="lnkQRCodeResult"  NavigateUri="https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6"><Run x:Name="rnLinkQRCodeResult">https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6</Run></Hyperlink>
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultText" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">Text QR code found</TextBlock>
+                <TextBlock Name="txtResult" MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap" FontFamily="Segoe UI">
+                    
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

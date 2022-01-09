@@ -30,6 +30,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Core;
 using QR_Code_Scanner.Business;
 using QR_Library.Managers;
+using QR_Library.Business;
+using System.Collections.ObjectModel;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -42,9 +44,12 @@ namespace QR_Code_Scanner_PRO
     {
         QRCameraManager cameraManager;
         BarcodeManager barcodeManager;
+        HistoryManager historyManager;
         System.Threading.Timer scanningTimer;
         CancellationTokenSource qrAnalyzerCancellationTokenSource;
 
+        private string lastResult;
+        private bool lastResultFromScanner;
 
         private bool HasBeenDeactivated { get; set; }
 
@@ -60,6 +65,7 @@ namespace QR_Code_Scanner_PRO
             qrAnalyzerCancellationTokenSource = new CancellationTokenSource();
             cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource);
             barcodeManager = new BarcodeManager();
+            historyManager = new HistoryManager();
             Application.Current.Suspending += Application_Suspending;
             Application.Current.Resuming += Current_Resuming;
             Application.Current.LeavingBackground += Current_LeavingBackground;
@@ -105,36 +111,61 @@ namespace QR_Code_Scanner_PRO
         /// TODO Method to be triggered by delegate to display message to start connecting to a network
         /// </summary>
         /// <param name="qrmessage"></param>
-        public async void handleQRcodeFound(string qrmessage)
+        public async void handleQRcodeFound(string qrmessage, bool fromScanner)
         {
+            historyManager.AppendToHistory(qrmessage);
+            lastResult = qrmessage;
+            lastResultFromScanner = fromScanner;
             ChangeAppStatus(AppStatus.waitingForUserInput);
-            //var wifiAPdata = WifiStringParser.parseWifiString(qrmessage);
+
             MessageDialog msgbox;
             if (string.IsNullOrEmpty(qrmessage))
             {
                 msgbox = new MessageDialog("QR empty");
-            }
-            else
-            {
-                msgbox = new MessageDialog(qrmessage);
-                // Add commands and set their callbacks; both buttons use the same callback function instead of inline event handlers
                 msgbox.Commands.Add(new UICommand(
-                    "Copy To Clipboard",
-                    new UICommandInvokedHandler(this.CopyTextToClipboardHandlerAsync), qrmessage));
-            }
-
-            msgbox.Commands.Add(new UICommand(
                 "Close",
                 new UICommandInvokedHandler(this.CancelHandler)));
 
-            // Set the command that will be invoked by default
-            msgbox.DefaultCommandIndex = 0;
+                // Set the command that will be invoked by default
+                msgbox.DefaultCommandIndex = 0;
 
-            // Set the command to be invoked when escape is pressed
-            msgbox.CancelCommandIndex = 1;
+                // Set the command to be invoked when escape is pressed
+                msgbox.CancelCommandIndex = 1;
 
-            // Show the message dialog
-            await msgbox.ShowAsync();
+                // Show the message dialog
+                await msgbox.ShowAsync();
+            }
+            else
+            {
+                if (Uri.IsWellFormedUriString(qrmessage, UriKind.Absolute))
+                {
+                    ShowLinkResult();
+                }
+                else
+                {
+                    ShowTextResult();
+                }
+            }
+        }
+
+        private void CancelHandler(IUICommand command)
+        {
+            //enable scanning again
+            this.cameraManager.ScanForQRcodes = true;
+            ChangeAppStatus(AppStatus.scanningForQR);
+        }
+
+        private void ShowTextResult()
+        {
+            this.GrdQRResultText.Visibility = Visibility.Visible;
+            this.txtResult.Text = lastResult;
+        }
+
+        private void ShowLinkResult()
+        {
+            this.GrdQRResultUrl.Visibility = Visibility.Visible;
+            this.lnkQRCodeResult.NavigateUri = new Uri(lastResult);
+            this.rnLinkQRCodeResult.Text = lastResult;
         }
 
         private async void CopyTextToClipboardHandlerAsync(IUICommand command)
@@ -144,13 +175,6 @@ namespace QR_Code_Scanner_PRO
             var dataPackage = new DataPackage();
             dataPackage.SetText(text);
             Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
-            //enable scanning again
-            this.cameraManager.ScanForQRcodes = true;
-            ChangeAppStatus(AppStatus.scanningForQR);
-        }
-
-        private void CancelHandler(IUICommand command)
-        {
             //enable scanning again
             this.cameraManager.ScanForQRcodes = true;
             ChangeAppStatus(AppStatus.scanningForQR);
@@ -179,6 +203,7 @@ namespace QR_Code_Scanner_PRO
 
         private void TabsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            CloseAllResultPopups();
             var activeTabName = ((PivotItem)(sender as Pivot).SelectedItem).Name;
             //activeTab = this.TabsView.SelectedIndex;
             if (!string.IsNullOrEmpty(activeTabName) && activeTabName == "scan")
@@ -195,7 +220,8 @@ namespace QR_Code_Scanner_PRO
                 this.cameraManager.ScanForQRcodes = false;
                 ChangeAppStatus(AppStatus.waitingForUserInput);
 
-
+                //todo: this is overkill, limit to correct tab but it works
+                RetrieveAndLoadHistory();
             }
         }
         private async void ActivateCameraPreviewAndScan()
@@ -351,7 +377,7 @@ namespace QR_Code_Scanner_PRO
                         // Get the SoftwareBitmap representation of the file
                         var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
                         var QRcodeResult = barcodeManager.DecodeBarcodeImage(softwareBitmap);
-                        handleQRcodeFound(QRcodeResult);
+                        handleQRcodeFound(QRcodeResult, false);
                     }
                     catch (Exception ex)
                     {
@@ -373,5 +399,63 @@ namespace QR_Code_Scanner_PRO
                 await msgbox.ShowAsync();
             }
         }
+
+        
+        private void GrdClickCapture_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            // The parent Grid was click, dismiss the result window
+            //CloseAllResults(null, null); this is problematic as it messes with scanning reenable
+
+        }
+
+        private void GrdQRResult_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            // Prevent click propagation to parent grid
+            e.Handled = true;
+        }
+
+        private void CloseAllResultPopups()
+        {
+            this.GrdQRResultUrl.Visibility = Visibility.Collapsed;
+            this.GrdQRResultText.Visibility = Visibility.Collapsed;
+        }
+
+        private void CloseAllResults(object sender, RoutedEventArgs e)
+        {
+            CloseAllResultPopups();
+
+            if (lastResultFromScanner)
+            {
+                //enable scanning again
+                this.cameraManager.ScanForQRcodes = true;
+                ChangeAppStatus(AppStatus.scanningForQR);
+            }
+        }
+
+        private void QRCopyToClipboard_Click(object sender, RoutedEventArgs e)
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(lastResult);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+        }
+
+        private async void RetrieveAndLoadHistory()
+        {
+            var history = await historyManager.RetrieveHistory();
+            if (history!=null && history.Any())
+            {
+                var historyWrapped = history.Select(x => new HistoryQRItemWrapper(x));
+                ObservableCollection<HistoryQRItemWrapper> observableCollectionHistoryData = new ObservableCollection<HistoryQRItemWrapper>(historyWrapped);
+
+                this.lvHistory.ItemsSource = observableCollectionHistoryData;
+            }
+        }
+
+        
+    }
+    // This wrapper is needed because the base class cannot be linked in the main page
+    public class HistoryQRItemWrapper : HistoryQRItem
+    {
+        public HistoryQRItemWrapper(HistoryQRItem historyQRItem) : base(historyQRItem) { }
     }
 }
