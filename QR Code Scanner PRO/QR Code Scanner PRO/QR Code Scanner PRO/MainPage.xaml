@@ -11,7 +11,7 @@
 
     <Grid Tapped="GrdClickCapture_Tapped">
         <Pivot x:Name="TabsView" SelectionChanged="TabsView_SelectionChanged">
-            <PivotItem Name="scan" Header="Scan QR Code">
+            <PivotItem Name="scan" Header="Scan Code">
                 <!--Pivot content goes here-->
                 <Grid>
                     <!--<ProgressRing Visibility="Visible" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Center"/>-->
@@ -26,7 +26,7 @@
 
                 </Grid>
             </PivotItem>
-            <PivotItem Header="Create QR Code">
+            <PivotItem Header="Create Code">
                 <!--Pivot content goes here-->
                 <ScrollViewer VerticalScrollBarVisibility="Visible">
                     <Grid Margin="20,20,20,20">
@@ -44,7 +44,7 @@
                 </ScrollViewer>
 
             </PivotItem>
-            <PivotItem Header="Open QR Code Image">
+            <PivotItem Header="Open QR Image">
                 <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
                     <Grid Margin="20,20,20,20">
                         <TextBlock VerticalAlignment="Top" Height="30" Text="Open an image containing a QR Code:"/>
@@ -54,40 +54,49 @@
                 </ScrollViewer>
             </PivotItem>
             <PivotItem Header="Scanning History">
-                <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
-                    <Grid Margin="20,20,20,20">
-                        <ListView Margin="0,90,0,0" x:Name="lvHistory">
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="local:HistoryQRItemWrapper">
-                                    <Grid Margin="0,0,0,0">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{x:Bind TextContent}" Margin="0,6,0,0" 
-                    Style="{ThemeResource BaseTextBlockStyle}"/>
-                                        <TextBlock  Grid.Column="0" Grid.Row="1" Text="" Margin="0,0,0,6" 
-                    Style="{ThemeResource BodyTextBlockStyle}"/>
-                                        <Grid Grid.RowSpan="2" Grid.Column="1">
-                                            <Button Name="btnGenerateStoredWifiQRCode" HorizontalAlignment="Right">View Details + QR</Button>
-                                            <!--<HyperlinkButton Name="btnGenerateStoredWifiQRCode" Click="BtnShowStoredWifiData_Click" HorizontalAlignment="Right">View Details + QR</HyperlinkButton>-->
-                                        </Grid>
+                <Grid>
+                    
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
+                        <Grid Margin="20,20,20,20">
+                            <TextBlock FontWeight="SemiBold" FontSize="21" Margin="20,5,0,0">Previously Scanned codes:</TextBlock>
+                            <ListView Margin="0,60,0,0" x:Name="lvHistory">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:HistoryQRItemWrapper">
+                                        <Grid Margin="0,0,0,0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="100"/>
+                                                <RowDefinition Height="100"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image Grid.RowSpan="2" Width="180" Height="180" Grid.Column="0" Source="{x:Bind QRImageContent}"></Image>
+                                            <StackPanel Grid.Column="1" Margin="0,6,0,0">
+                                                <TextBlock>Raw text content:</TextBlock>
+                                                <TextBlock Grid.Column="1" Text="{x:Bind TextContent}"  Style="{ThemeResource BaseTextBlockStyle}"/>
+                                            </StackPanel>
 
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </Grid>
-                </ScrollViewer>
+
+                                            <Grid Grid.RowSpan="2" Grid.Column="2">
+                                                <Button Click="BtnCopyHistoryText_Click" Name="btnCopyHistoryText" HorizontalAlignment="Right">Copy text to clipboard</Button>
+                                                <!--<HyperlinkButton Name="btnGenerateStoredWifiQRCode" Click="BtnShowStoredWifiData_Click" HorizontalAlignment="Right">View Details + QR</HyperlinkButton>-->
+                                            </Grid>
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
+                
             </PivotItem>
         </Pivot>
         <Grid MinHeight="150" Name="GrdQRResultUrl" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
@@ -95,6 +104,24 @@
                 <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">URL QR code found</TextBlock>
                 <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
                     URL: <Hyperlink x:Name="lnkQRCodeResult"  NavigateUri="https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6"><Run x:Name="rnLinkQRCodeResult">https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6</Run></Hyperlink>
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid MinHeight="150" Name="GrdQRResultEmail" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">Email QR code found</TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Email: <Run x:Name="rnEmailResultEmail">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Subject: <Run x:Name="rnEmailResultSubject">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Message: <Run x:Name="rnEmailResultMessage">empty</Run>
                 </TextBlock>
                 <Grid>
                     <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>

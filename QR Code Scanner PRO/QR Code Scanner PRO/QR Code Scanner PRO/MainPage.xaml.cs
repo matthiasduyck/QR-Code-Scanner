@@ -32,6 +32,7 @@ using QR_Code_Scanner.Business;
 using QR_Library.Managers;
 using QR_Library.Business;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -137,7 +138,14 @@ namespace QR_Code_Scanner_PRO
             }
             else
             {
-                if (Uri.IsWellFormedUriString(qrmessage, UriKind.Absolute))
+                Regex emailQRRegex = new Regex("MATMSG:(?:TO:.*;)?(?:SUB:.*;)?(?:BODY:.*;)?;");
+                var emailQRMatch = emailQRRegex.Match(qrmessage);
+
+                if (emailQRMatch.Success)
+                {
+                    ShowEmailResult();
+                }
+                else if (Uri.IsWellFormedUriString(qrmessage, UriKind.Absolute))
                 {
                     ShowLinkResult();
                 }
@@ -166,6 +174,40 @@ namespace QR_Code_Scanner_PRO
             this.GrdQRResultUrl.Visibility = Visibility.Visible;
             this.lnkQRCodeResult.NavigateUri = new Uri(lastResult);
             this.rnLinkQRCodeResult.Text = lastResult;
+        }
+
+        private void ShowEmailResult()
+        {
+            this.GrdQRResultEmail.Visibility = Visibility.Visible;
+            Regex toRegex = new Regex(@"TO:(.*?)((?<!\\);)");
+            var toRegexMatch = toRegex.Match(lastResult);
+
+            Regex subjectRegex = new Regex(@"SUB:(.*?)((?<!\\);)");
+            var subjectRegexMatch = subjectRegex.Match(lastResult);
+
+            Regex bodyRegex = new Regex(@"BODY:(.*?)((?<!\\);)");
+            var bodyRegexMatch = bodyRegex.Match(lastResult);
+
+            if (toRegexMatch.Success)
+            {
+                var emailResultEmail = toRegexMatch.Value.Substring(3);
+                emailResultEmail = emailResultEmail.Substring(0, emailResultEmail.Length - 1);
+                this.rnEmailResultEmail.Text = emailResultEmail;
+            }
+
+            if (subjectRegexMatch.Success)
+            {
+                var emailResultSubject = subjectRegexMatch.Value.Substring(4);
+                emailResultSubject = emailResultSubject.Substring(0, emailResultSubject.Length - 1);
+                this.rnEmailResultSubject.Text = emailResultSubject;
+            }
+
+            if (bodyRegexMatch.Success)
+            {
+                var emailResultBody = bodyRegexMatch.Value.Substring(5);
+                emailResultBody = emailResultBody.Substring(0, emailResultBody.Length - 1);
+                this.rnEmailResultMessage.Text = emailResultBody;
+            }
         }
 
         private async void CopyTextToClipboardHandlerAsync(IUICommand command)
@@ -418,6 +460,7 @@ namespace QR_Code_Scanner_PRO
         {
             this.GrdQRResultUrl.Visibility = Visibility.Collapsed;
             this.GrdQRResultText.Visibility = Visibility.Collapsed;
+            this.GrdQRResultEmail.Visibility = Visibility.Collapsed;
         }
 
         private void CloseAllResults(object sender, RoutedEventArgs e)
@@ -444,18 +487,26 @@ namespace QR_Code_Scanner_PRO
             var history = await historyManager.RetrieveHistory();
             if (history!=null && history.Any())
             {
-                var historyWrapped = history.Select(x => new HistoryQRItemWrapper(x));
+                var historyWrapped = history.Select(x => new HistoryQRItemWrapper(x)).Reverse();
                 ObservableCollection<HistoryQRItemWrapper> observableCollectionHistoryData = new ObservableCollection<HistoryQRItemWrapper>(historyWrapped);
 
                 this.lvHistory.ItemsSource = observableCollectionHistoryData;
             }
         }
 
-        
+        private void BtnCopyHistoryText_Click(object sender, RoutedEventArgs e)
+        {
+            var historyQRItem = ((Windows.UI.Xaml.FrameworkElement)sender).DataContext as HistoryQRItemWrapper;
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(historyQRItem.TextContent);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+        }
     }
     // This wrapper is needed because the base class cannot be linked in the main page
     public class HistoryQRItemWrapper : HistoryQRItem
     {
-        public HistoryQRItemWrapper(HistoryQRItem historyQRItem) : base(historyQRItem) { }
+        public HistoryQRItemWrapper(HistoryQRItem historyQRItem) : base(historyQRItem) {
+
+        }
     }
 }
