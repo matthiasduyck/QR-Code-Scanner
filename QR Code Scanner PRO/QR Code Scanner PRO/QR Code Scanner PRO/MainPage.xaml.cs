@@ -33,6 +33,8 @@ using QR_Library.Managers;
 using QR_Library.Business;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using QR_Library.Data.QRTypes;
+using QR_Library.Helpers;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -46,10 +48,11 @@ namespace QR_Code_Scanner_PRO
         QRCameraManager cameraManager;
         BarcodeManager barcodeManager;
         HistoryManager historyManager;
+        QRDataManager qrDataManager;
         System.Threading.Timer scanningTimer;
         CancellationTokenSource qrAnalyzerCancellationTokenSource;
 
-        private string lastResult;
+        private HistoryQRItem lastResult;
         private bool lastResultFromScanner;
 
         private bool HasBeenDeactivated { get; set; }
@@ -67,6 +70,7 @@ namespace QR_Code_Scanner_PRO
             cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource);
             barcodeManager = new BarcodeManager();
             historyManager = new HistoryManager();
+            qrDataManager = new QRDataManager();
             Application.Current.Suspending += Application_Suspending;
             Application.Current.Resuming += Current_Resuming;
             Application.Current.LeavingBackground += Current_LeavingBackground;
@@ -115,7 +119,7 @@ namespace QR_Code_Scanner_PRO
         public async void handleQRcodeFound(string qrmessage, bool fromScanner)
         {
             historyManager.AppendToHistory(qrmessage);
-            lastResult = qrmessage;
+            lastResult = new HistoryQRItem() { TextContent = qrmessage };
             lastResultFromScanner = fromScanner;
             ChangeAppStatus(AppStatus.waitingForUserInput);
 
@@ -138,20 +142,23 @@ namespace QR_Code_Scanner_PRO
             }
             else
             {
-                Regex emailQRRegex = new Regex("MATMSG:(?:TO:.*;)?(?:SUB:.*;)?(?:BODY:.*;)?;");
-                var emailQRMatch = emailQRRegex.Match(qrmessage);
 
-                if (emailQRMatch.Success)
+                var qrType = qrDataManager.DetermineQRType(qrmessage);
+
+                switch (qrType)
                 {
-                    ShowEmailResult();
-                }
-                else if (Uri.IsWellFormedUriString(qrmessage, UriKind.Absolute))
-                {
-                    ShowLinkResult();
-                }
-                else
-                {
-                    ShowTextResult();
+                    case QRCodeType.SMS:
+                        ShowSMSResult();
+                        break;
+                    case QRCodeType.Email:
+                        ShowEmailResult();
+                        break;
+                    case QRCodeType.Hyperlink:
+                        ShowLinkResult();
+                        break;
+                    case QRCodeType.Text:
+                        ShowTextResult();
+                        break;
                 }
             }
         }
@@ -166,47 +173,57 @@ namespace QR_Code_Scanner_PRO
         private void ShowTextResult()
         {
             this.GrdQRResultText.Visibility = Visibility.Visible;
-            this.txtResult.Text = lastResult;
+            this.txtResult.Text = lastResult.TextContent;
         }
 
         private void ShowLinkResult()
         {
             this.GrdQRResultUrl.Visibility = Visibility.Visible;
-            this.lnkQRCodeResult.NavigateUri = new Uri(lastResult);
-            this.rnLinkQRCodeResult.Text = lastResult;
+            this.lnkQRCodeResult.NavigateUri = new Uri(lastResult.TextContent);
+            this.rnLinkQRCodeResult.Text = lastResult.TextContent;
         }
 
         private void ShowEmailResult()
         {
             this.GrdQRResultEmail.Visibility = Visibility.Visible;
-            Regex toRegex = new Regex(@"TO:(.*?)((?<!\\);)");
-            var toRegexMatch = toRegex.Match(lastResult);
+            var emailQRData = new Email(lastResult);
 
-            Regex subjectRegex = new Regex(@"SUB:(.*?)((?<!\\);)");
-            var subjectRegexMatch = subjectRegex.Match(lastResult);
+            this.rnEmailResultEmail.Text = "empty";
+            this.rnEmailResultSubject.Text = "empty";
+            this.rnEmailResultMessage.Text = "empty";
 
-            Regex bodyRegex = new Regex(@"BODY:(.*?)((?<!\\);)");
-            var bodyRegexMatch = bodyRegex.Match(lastResult);
-
-            if (toRegexMatch.Success)
+            if (!string.IsNullOrEmpty(emailQRData.ToEmailField))
             {
-                var emailResultEmail = toRegexMatch.Value.Substring(3);
-                emailResultEmail = emailResultEmail.Substring(0, emailResultEmail.Length - 1);
-                this.rnEmailResultEmail.Text = emailResultEmail;
+                this.rnEmailResultEmail.Text = emailQRData.ToEmailField;
             }
 
-            if (subjectRegexMatch.Success)
+            if (!string.IsNullOrEmpty(emailQRData.SubjectEmailField))
             {
-                var emailResultSubject = subjectRegexMatch.Value.Substring(4);
-                emailResultSubject = emailResultSubject.Substring(0, emailResultSubject.Length - 1);
-                this.rnEmailResultSubject.Text = emailResultSubject;
+                this.rnEmailResultSubject.Text = emailQRData.SubjectEmailField;
             }
 
-            if (bodyRegexMatch.Success)
+            if (!string.IsNullOrEmpty(emailQRData.MessageEmailField))
             {
-                var emailResultBody = bodyRegexMatch.Value.Substring(5);
-                emailResultBody = emailResultBody.Substring(0, emailResultBody.Length - 1);
-                this.rnEmailResultMessage.Text = emailResultBody;
+                this.rnEmailResultMessage.Text = emailQRData.MessageEmailField;
+            }
+        }
+
+        private void ShowSMSResult()
+        {
+            this.GrdQRResultSMS.Visibility = Visibility.Visible;
+            var smsQRData = new SMS(lastResult);
+
+            this.rnSMSResultMessage.Text = "empty";
+            this.rnSMSResultNumber.Text = "empty";
+
+            if (!string.IsNullOrEmpty(smsQRData.Number))
+            {
+                this.rnSMSResultNumber.Text = smsQRData.Number;
+            }
+
+            if (!string.IsNullOrEmpty(smsQRData.Message))
+            {
+                this.rnSMSResultMessage.Text = smsQRData.Message;
             }
         }
 
@@ -214,9 +231,7 @@ namespace QR_Code_Scanner_PRO
         {
             ChangeAppStatus(AppStatus.waitingForUserInput);
             var text = command.Id as string;
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(text);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+            Helpers.CopyToClipboard(text);
             //enable scanning again
             this.cameraManager.ScanForQRcodes = true;
             ChangeAppStatus(AppStatus.scanningForQR);
@@ -461,6 +476,7 @@ namespace QR_Code_Scanner_PRO
             this.GrdQRResultUrl.Visibility = Visibility.Collapsed;
             this.GrdQRResultText.Visibility = Visibility.Collapsed;
             this.GrdQRResultEmail.Visibility = Visibility.Collapsed;
+            this.GrdQRResultSMS.Visibility = Visibility.Collapsed;
         }
 
         private void CloseAllResults(object sender, RoutedEventArgs e)
@@ -477,9 +493,9 @@ namespace QR_Code_Scanner_PRO
 
         private void QRCopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(lastResult);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+            var specificLastResult = qrDataManager.UpgradeHistoryItem(lastResult);
+            specificLastResult.GetReadableText();
+            Helpers.CopyToClipboard(specificLastResult.ReadableText);
         }
 
         private async void RetrieveAndLoadHistory()
@@ -487,6 +503,11 @@ namespace QR_Code_Scanner_PRO
             var history = await historyManager.RetrieveHistory();
             if (history!=null && history.Any())
             {
+                history = history.Select(x=> qrDataManager.UpgradeHistoryItem(x)).ToList();
+                foreach (var historyItem in history)
+                {
+                    historyItem.GetReadableText();
+                }
                 var historyWrapped = history.Select(x => new HistoryQRItemWrapper(x)).Reverse();
                 ObservableCollection<HistoryQRItemWrapper> observableCollectionHistoryData = new ObservableCollection<HistoryQRItemWrapper>(historyWrapped);
 
@@ -497,9 +518,7 @@ namespace QR_Code_Scanner_PRO
         private void BtnCopyHistoryText_Click(object sender, RoutedEventArgs e)
         {
             var historyQRItem = ((Windows.UI.Xaml.FrameworkElement)sender).DataContext as HistoryQRItemWrapper;
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(historyQRItem.TextContent);
-            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+            Helpers.CopyToClipboard(historyQRItem.ReadableText);
         }
     }
     // This wrapper is needed because the base class cannot be linked in the main page

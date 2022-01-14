@@ -79,8 +79,8 @@
                                             </Grid.ColumnDefinitions>
                                             <Image Grid.RowSpan="2" Width="180" Height="180" Grid.Column="0" Source="{x:Bind QRImageContent}"></Image>
                                             <StackPanel Grid.Column="1" Margin="0,6,0,0">
-                                                <TextBlock>Raw text content:</TextBlock>
-                                                <TextBlock Grid.Column="1" Text="{x:Bind TextContent}"  Style="{ThemeResource BaseTextBlockStyle}"/>
+                                                <TextBlock>QR content:</TextBlock>
+                                                <TextBlock Grid.Column="1" Text="{x:Bind ReadableText}"  Style="{ThemeResource BaseTextBlockStyle}"/>
                                             </StackPanel>
 
 
@@ -99,7 +99,7 @@
                 
             </PivotItem>
         </Pivot>
-        <Grid MinHeight="150" Name="GrdQRResultUrl" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultUrl" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
             <StackPanel>
                 <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">URL QR code found</TextBlock>
                 <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
@@ -111,7 +111,7 @@
                 </Grid>
             </StackPanel>
         </Grid>
-        <Grid MinHeight="150" Name="GrdQRResultEmail" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultEmail" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
             <StackPanel>
                 <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">Email QR code found</TextBlock>
                 <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
@@ -122,6 +122,21 @@
                 </TextBlock>
                 <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
                     Message: <Run x:Name="rnEmailResultMessage">empty</Run>
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultSMS" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">SMS QR code found</TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Number: <Run x:Name="rnSMSResultNumber">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Message: <Run x:Name="rnSMSResultMessage">empty</Run>
                 </TextBlock>
                 <Grid>
                     <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>

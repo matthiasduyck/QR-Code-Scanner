@@ -129,6 +129,21 @@
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\HistoryQRItem.cs">
       <Link>Business\HistoryQRItem.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\QRCodeType.cs">
+      <Link>Business\QRCodeType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Data\QRTypes\Email.cs">
+      <Link>Data\QRTypes\Email.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Data\QRTypes\QRType.cs">
+      <Link>Data\QRTypes\QRType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Data\QRTypes\SMS.cs">
+      <Link>Data\QRTypes\SMS.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Helpers\Helpers.cs">
+      <Link>Helpers\Helpers.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\BarcodeManager.cs">
       <Link>Managers\BarcodeManager.cs</Link>
     </Compile>
@@ -140,6 +155,9 @@
     </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\QRCameraManager.cs">
       <Link>Managers\QRCameraManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\QRDataManager.cs">
+      <Link>Managers\QRDataManager.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
