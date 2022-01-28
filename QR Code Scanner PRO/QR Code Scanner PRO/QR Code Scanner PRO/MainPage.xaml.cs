@@ -147,6 +147,12 @@ namespace QR_Code_Scanner_PRO
 
                 switch (qrType)
                 {
+                    case QRCodeType.Wifi:
+                        ShowWifiResult();
+                        break;
+                    case QRCodeType.VCard:
+                        ShowVCardResult();
+                        break;
                     case QRCodeType.SMS:
                         ShowSMSResult();
                         break;
@@ -227,6 +233,115 @@ namespace QR_Code_Scanner_PRO
             }
         }
 
+        private void ShowWifiResult()
+        {
+            this.GrdQRResultWifi.Visibility = Visibility.Visible;
+            var wifiData = new Wifi(lastResult);
+
+            this.rnWifiResultHidden.Text = "no";
+            this.rnWifiResultNetwork.Text = "empty";
+            this.rnWifiResultPassword.Text = "empty";
+            this.rnWifiResultSecurity.Text = "empty";
+
+            if (!string.IsNullOrEmpty(wifiData.Password))
+            {
+                this.rnWifiResultPassword.Text = wifiData.Password;
+            }
+            if (wifiData.Hidden)
+            {
+                this.rnWifiResultHidden.Text = "yes";
+            }
+            if (!string.IsNullOrEmpty(wifiData.Ssid))
+            {
+                this.rnWifiResultNetwork.Text = wifiData.Ssid;
+            }
+            if (wifiData.WifiAccessPointSecurityType!=null)
+            {
+                this.rnWifiResultSecurity.Text = Enum.GetName(typeof(WifiSecurity), wifiData.WifiAccessPointSecurityType);
+            }
+        }
+
+        private void ShowVCardResult()
+        {
+            this.GrdQRResultVCard.Visibility = Visibility.Visible;
+            var vCardQRData = new VCard(lastResult);
+
+            this.rnVCardResultFirstName.Text = "empty";
+            this.rnVCardResultLastName.Text = "empty";
+            this.rnVCardResultCity.Text = "empty";
+            this.rnVCardResultCompany.Text = "empty";
+            this.rnVCardResultCountry.Text = "empty";
+            this.rnVCardResultEmail.Text = "empty";
+            this.rnVCardResultFax.Text = "empty";
+            this.rnVCardResultMobile.Text = "empty";
+            this.rnVCardResultPhone.Text = "empty";
+            this.rnVCardResultState.Text = "empty";
+            this.rnVCardResultStreet.Text = "empty";
+            this.rnVCardResultTitle.Text = "empty";
+            this.rnVCardResultWebsite.Text = "empty";
+            this.rnVCardResultZIP.Text = "empty";
+
+            if (!string.IsNullOrEmpty(vCardQRData.FirstName))
+            {
+                this.rnVCardResultFirstName.Text = vCardQRData.FirstName;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.LastName))
+            {
+                this.rnVCardResultLastName.Text = vCardQRData.LastName;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.City))
+            {
+                this.rnVCardResultCity.Text = vCardQRData.City;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Company))
+            {
+                this.rnVCardResultCompany.Text = vCardQRData.Company;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Country))
+            {
+                this.rnVCardResultCountry.Text = vCardQRData.Country;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Email))
+            {
+                this.rnVCardResultEmail.Text = vCardQRData.Email;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Fax))
+            {
+                this.rnVCardResultFax.Text = vCardQRData.Fax;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Mobile))
+            {
+                this.rnVCardResultMobile.Text = vCardQRData.Mobile;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Phone))
+            {
+                this.rnVCardResultPhone.Text = vCardQRData.Phone;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.State))
+            {
+                this.rnVCardResultState.Text = vCardQRData.State;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Street))
+            {
+                this.rnVCardResultStreet.Text = vCardQRData.Street;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Title))
+            {
+                this.rnVCardResultTitle.Text = vCardQRData.Title;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.Website))
+            {
+                this.rnVCardResultWebsite.Text = vCardQRData.Website;
+            }
+            if (!string.IsNullOrEmpty(vCardQRData.ZIP))
+            {
+                this.rnVCardResultZIP.Text = vCardQRData.ZIP;
+            }
+
+
+            
+        }
+
         private async void CopyTextToClipboardHandlerAsync(IUICommand command)
         {
             ChangeAppStatus(AppStatus.waitingForUserInput);
@@ -276,9 +391,10 @@ namespace QR_Code_Scanner_PRO
                 DeActivateCameraPreviewAndScan();
                 this.cameraManager.ScanForQRcodes = false;
                 ChangeAppStatus(AppStatus.waitingForUserInput);
-
-                //todo: this is overkill, limit to correct tab but it works
-                RetrieveAndLoadHistory();
+                if(!string.IsNullOrEmpty(activeTabName) && activeTabName == "history")
+                {
+                    RetrieveAndLoadHistory();
+                }
             }
         }
         private async void ActivateCameraPreviewAndScan()
@@ -477,6 +593,8 @@ namespace QR_Code_Scanner_PRO
             this.GrdQRResultText.Visibility = Visibility.Collapsed;
             this.GrdQRResultEmail.Visibility = Visibility.Collapsed;
             this.GrdQRResultSMS.Visibility = Visibility.Collapsed;
+            this.GrdQRResultVCard.Visibility = Visibility.Collapsed;
+            this.GrdQRResultWifi.Visibility = Visibility.Collapsed;
         }
 
         private void CloseAllResults(object sender, RoutedEventArgs e)

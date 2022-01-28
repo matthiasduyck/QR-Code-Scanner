@@ -53,7 +53,7 @@
                     </Grid>
                 </ScrollViewer>
             </PivotItem>
-            <PivotItem Header="Scanning History">
+            <PivotItem Name="history" Header="Scanning History">
                 <Grid>
                     
                     <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
@@ -78,7 +78,7 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Image Grid.RowSpan="2" Width="180" Height="180" Grid.Column="0" Source="{x:Bind QRImageContent}"></Image>
-                                            <StackPanel Grid.Column="1" Margin="0,6,0,0">
+                                            <StackPanel Grid.RowSpan="2" Grid.Column="1" Margin="0,6,0,0">
                                                 <TextBlock>QR content:</TextBlock>
                                                 <TextBlock Grid.Column="1" Text="{x:Bind ReadableText}"  Style="{ThemeResource BaseTextBlockStyle}"/>
                                             </StackPanel>
@@ -137,6 +137,82 @@
                 </TextBlock>
                 <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
                     Message: <Run x:Name="rnSMSResultMessage">empty</Run>
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultWifi" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">WIFI QR code found</TextBlock>
+                
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Get Wi-Fi QR Code scanner from the app store for these types of QR Codes:<LineBreak></LineBreak><Hyperlink NavigateUri="https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6">https://www.microsoft.com/en-us/p/wifi-qr-code-scanner-pro/9nkj4pt4llj6</Hyperlink>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Network Name (SSID): <Run x:Name="rnWifiResultNetwork">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Password: <Run x:Name="rnWifiResultPassword">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Security Type: <Run x:Name="rnWifiResultSecurity">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,20" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Hidden network: <Run x:Name="rnWifiResultHidden">No</Run>
+                </TextBlock>
+                <Grid>
+                    <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
+                    <Button Click="CloseAllResults" HorizontalAlignment="Right">Close</Button>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <Grid Visibility="Collapsed" MinHeight="150" Name="GrdQRResultVCard" Tapped="GrdQRResult_Tapped" Margin="0,65,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Padding="25" BorderBrush="Gray" BorderThickness="1">
+            <StackPanel>
+                <TextBlock FontSize="20" HorizontalAlignment="Stretch" Margin="0,0,0,20">VCard QR code found</TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    First name: <Run x:Name="rnVCardResultFirstName">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Last name: <Run x:Name="rnVCardResultLastName">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Mobile: <Run x:Name="rnVCardResultMobile">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Phone: <Run x:Name="rnVCardResultPhone">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Fax: <Run x:Name="rnVCardResultFax">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Email: <Run x:Name="rnVCardResultEmail">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Company: <Run x:Name="rnVCardResultCompany">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Title: <Run x:Name="rnVCardResultTitle">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Street: <Run x:Name="rnVCardResultStreet">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    City: <Run x:Name="rnVCardResultCity">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    ZIP: <Run x:Name="rnVCardResultZIP">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    State: <Run x:Name="rnVCardResultState">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Country: <Run x:Name="rnVCardResultCountry">empty</Run>
+                </TextBlock>
+                <TextBlock MinWidth="500" MaxWidth="600" Margin="0,0,0,10" FontWeight="Medium" TextAlignment="Left" TextWrapping="Wrap">
+                    Website: <Run x:Name="rnVCardResultWebsite">empty</Run>
                 </TextBlock>
                 <Grid>
                     <Button Click="QRCopyToClipboard_Click">Copy to clipboard</Button>
