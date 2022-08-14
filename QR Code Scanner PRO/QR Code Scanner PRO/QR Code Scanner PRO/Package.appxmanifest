@@ -9,7 +9,7 @@
   <Identity
     Name="59867MatthiasDuyck.QRCodeScannerPRO"
     Publisher="CN=DA2D21D8-3390-4818-A996-7B7A779D9778"
-    Version="0.0.1.0" />
+    Version="0.0.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="93065ebc-e27b-4c5d-9509-a8a3d376ac17" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

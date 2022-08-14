@@ -463,7 +463,7 @@ namespace QR_Code_Scanner_PRO
             var result = qr.Write(text);
             //set as source
             this.imgQrCode.Source = result;
-            //TODO NEEDED? //this.lastQrSSid = wifiData.ssid;
+
             //make save button visible
             this.btnSaveFile.Visibility = Visibility.Visible;
         }
@@ -637,6 +637,11 @@ namespace QR_Code_Scanner_PRO
         {
             var historyQRItem = ((Windows.UI.Xaml.FrameworkElement)sender).DataContext as HistoryQRItemWrapper;
             Helpers.CopyToClipboard(historyQRItem.ReadableText);
+        }
+
+        private void CreateQRCodeNavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+        {
+
         }
     }
     // This wrapper is needed because the base class cannot be linked in the main page

@@ -31,6 +31,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Core;
 using QR_Code_Scanner.Business;
 using QR_Library.Managers;
+using System.Collections.ObjectModel;
+using QR_Library.Business;
 
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -68,6 +70,25 @@ namespace QR_Code_Scanner
             this.donateLnk.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
             this.donateLnkGenerate.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
             this.donateLnkOpen.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
+            PreviewHistoryFeature();
+            if (NagwareManager.ShouldNag())
+            {
+                GrdNagware.Visibility = Visibility.Visible;
+            }
+        }
+
+        private QrCodeEncodingOptions GetQREncodingOptions
+        {
+            get
+            {
+                return new QrCodeEncodingOptions
+                {
+                    DisableECI = true,
+                    CharacterSet = "UTF-8",
+                    Width = 512,
+                    Height = 512,
+                };
+            }
         }
 
         static void CrashHandler(object sender, System.UnhandledExceptionEventArgs args)
@@ -110,7 +131,7 @@ namespace QR_Code_Scanner
         /// TODO Method to be triggered by delegate to display message to start connecting to a network
         /// </summary>
         /// <param name="qrmessage"></param>
-        public async void handleQRcodeFound(string qrmessage)
+        public async void handleQRcodeFound(string qrmessage, bool fromScanner)
         {
             ChangeAppStatus(AppStatus.waitingForUserInput);
             //var wifiAPdata = WifiStringParser.parseWifiString(qrmessage);
@@ -256,15 +277,8 @@ namespace QR_Code_Scanner
 
 
             //create image
-            var options = new QrCodeEncodingOptions
-            {
-                DisableECI = true,
-                CharacterSet = "UTF-8",
-                Width = 512,
-                Height = 512,
-            };
             var qr = new ZXing.BarcodeWriter();
-            qr.Options = options;
+            qr.Options = GetQREncodingOptions;
             qr.Format = ZXing.BarcodeFormat.QR_CODE;
             var result = qr.Write(text);
             //set as source
@@ -356,7 +370,7 @@ namespace QR_Code_Scanner
                         // Get the SoftwareBitmap representation of the file
                         var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
                         var QRcodeResult = barcodeManager.DecodeBarcodeImage(softwareBitmap);
-                        handleQRcodeFound(QRcodeResult);
+                        handleQRcodeFound(QRcodeResult, false);
                     }
                     catch (Exception ex)
                     {
@@ -377,6 +391,44 @@ namespace QR_Code_Scanner
                 // Show the message dialog
                 await msgbox.ShowAsync();
             }
+        }
+
+        private void PreviewHistoryFeature()
+        {
+            //create sample image
+            var qr = new ZXing.BarcodeWriter();
+            qr.Options = GetQREncodingOptions;
+            qr.Format = ZXing.BarcodeFormat.QR_CODE;
+            //var sampleQR1 = qr.Write("https://apps.microsoft.com/store/detail/qr-code-scanner-pro/9PNVRKZ7PQVN");
+            //var sampleQR2 = qr.Write("https://apps.microsoft.com/store/detail/wifi-qr-code-scanner-pro/9NKJ4PT4LLJ6");
+
+
+            var history = new List<HistoryQRItem>() {
+                new HistoryQRItem() {TextContent="Sample history QR Code" },
+                new HistoryQRItem() {TextContent="Another QR code" }
+            };
+
+            foreach(var historyItem in history)
+            {
+                historyItem.GetReadableText();
+            }
+            var historyWrapped = history.Select(x => new HistoryQRItemWrapper(x)).Reverse();
+            ObservableCollection<HistoryQRItemWrapper> observableCollectionHistoryData = new ObservableCollection<HistoryQRItemWrapper>(historyWrapped);
+
+            this.lvHistory.ItemsSource = observableCollectionHistoryData;
+        }
+
+        private void BtnCloseNagware_Click(object sender, RoutedEventArgs e)
+        {
+            GrdNagware.Visibility = Visibility.Collapsed;
+        }
+    }
+    // This wrapper is needed because the base class cannot be linked in the main page
+    public class HistoryQRItemWrapper : HistoryQRItem
+    {
+        public HistoryQRItemWrapper(HistoryQRItem historyQRItem) : base(historyQRItem)
+        {
+
         }
     }
 }

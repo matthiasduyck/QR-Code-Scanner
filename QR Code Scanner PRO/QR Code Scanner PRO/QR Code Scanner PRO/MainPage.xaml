@@ -7,7 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    xmlns:control="using:Microsoft.UI.Xaml.Controls">
 
     <Grid Tapped="GrdClickCapture_Tapped">
         <Pivot x:Name="TabsView" SelectionChanged="TabsView_SelectionChanged">
@@ -28,20 +29,45 @@
             </PivotItem>
             <PivotItem Header="Create Code">
                 <!--Pivot content goes here-->
-                <ScrollViewer VerticalScrollBarVisibility="Visible">
-                    <Grid Margin="20,20,20,20">
-
-                        <TextBlock VerticalAlignment="Top" Height="30" Text="Text"/>
-                        <TextBox Name="txtText" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText=""></TextBox>
-
-
-
-
-                        <Button Name="btnGenerateQR" VerticalAlignment="Top" Height="30" Margin="0,282,0,0" Click="BtnGenerateQR_Click">Generate QR Code</Button>
-                        <Image Name="imgQrCode" VerticalAlignment="Top" Height="200" Margin="0,282,0,0"></Image>
-                        <Button Name="btnSaveFile" VerticalAlignment="Top" Height="30" Margin="0,452,0,0" Click="BtnSaveFile_Click" Visibility="Collapsed">Save QR Code File</Button>
-                    </Grid>
-                </ScrollViewer>
+                <Grid>
+                    <control:NavigationView Margin="0" x:Name="createQRCodeNavigationView" OpenPaneLength="200" PaneDisplayMode="Left" ItemInvoked="CreateQRCodeNavigationView_ItemInvoked" IsSettingsVisible="False" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed">
+                        <control:NavigationView.MenuItems>
+                            <control:NavigationViewItem  Content="Text" Tag="SamplePage1" />
+                            <control:NavigationViewItem  Content="Email" Tag="SamplePage2" />
+                            <control:NavigationViewItem  Content="SMS" Tag="SamplePage3" />
+                            <control:NavigationViewItem  Content="VCard" Tag="SamplePage4" />
+                            <control:NavigationViewItem  Content="WiFi" Tag="SamplePage4" />
+                        </control:NavigationView.MenuItems>
+                        <Frame x:Name="contentFrame">
+                            
+                                <Grid Margin="0">
+                                    <ScrollViewer Visibility="Visible" VerticalScrollBarVisibility="Visible" Margin="0,0,0,310">
+                                    <Grid Margin="20,20,20,20">
+                                        <Grid Name="grdCreateText" Visibility="Collapsed">
+                                            <TextBlock VerticalAlignment="Top" Height="30" Text="Text"/>
+                                            <TextBox Name="txtText" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText=""></TextBox>
+                                        </Grid>
+                                        <Grid Name="grdCreateEmail" Visibility="Visible">
+                                            <TextBlock VerticalAlignment="Top" Height="30" Text="Emailadress"/>
+                                            <TextBox Name="txtEmail" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="example@test.com"></TextBox>
+                                        </Grid>
+                                    </Grid>
+                                </ScrollViewer>
+                                    <Grid VerticalAlignment="Bottom" Height="310" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="Gray" BorderThickness="0,1,0,0">
+                                        <Grid Margin="20,20,20,20">
+                                            <Button Name="btnGenerateQR" VerticalAlignment="Top" Height="30" Margin="0,0,0,0" Click="BtnGenerateQR_Click">Generate QR Code</Button>
+                                            <Image Name="imgQrCode" VerticalAlignment="Top" Height="200" Margin="0,35,0,0"></Image>
+                                            <Button Name="btnSaveFile" VerticalAlignment="Bottom" Height="30" Margin="0,0,0,0" Click="BtnSaveFile_Click" Visibility="Collapsed">Save QR Code File</Button>
+                                        </Grid>
+                                    </Grid>
+                                    
+                                </Grid>
+                            
+                        </Frame>
+                    </control:NavigationView>
+                    
+                </Grid>
+                
 
             </PivotItem>
             <PivotItem Header="Open QR Image">

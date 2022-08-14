@@ -133,11 +133,17 @@
     <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\FrameSourceInformation.cs">
       <Link>Business\FrameSourceInformation.cs</Link>
     </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\HistoryQRItem.cs">
+      <Link>Business\HistoryQRItem.cs</Link>
+    </Compile>
     <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\BarcodeManager.cs">
       <Link>Managers\BarcodeManager.cs</Link>
     </Compile>
     <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\MessageManager.cs">
       <Link>Managers\MessageManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\NagwareManager.cs">
+      <Link>Managers\NagwareManager.cs</Link>
     </Compile>
     <Compile Include="..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\QRCameraManager.cs">
       <Link>Managers\QRCameraManager.cs</Link>
@@ -181,6 +187,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.8</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.6</Version>
