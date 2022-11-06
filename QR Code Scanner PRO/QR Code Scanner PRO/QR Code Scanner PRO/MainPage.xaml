@@ -30,13 +30,14 @@
             <PivotItem Header="Create Code">
                 <!--Pivot content goes here-->
                 <Grid>
-                    <control:NavigationView Margin="0" x:Name="createQRCodeNavigationView" OpenPaneLength="200" PaneDisplayMode="Left" ItemInvoked="CreateQRCodeNavigationView_ItemInvoked" IsSettingsVisible="False" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed">
+                    <control:NavigationView Margin="0" x:Name="createQRCodeNavigationView"  OpenPaneLength="200" PaneDisplayMode="Left" ItemInvoked="CreateQRCodeNavigationView_ItemInvoked" IsSettingsVisible="False" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed">
                         <control:NavigationView.MenuItems>
-                            <control:NavigationViewItem  Content="Text" Tag="SamplePage1" />
-                            <control:NavigationViewItem  Content="Email" Tag="SamplePage2" />
-                            <control:NavigationViewItem  Content="SMS" Tag="SamplePage3" />
-                            <control:NavigationViewItem  Content="VCard" Tag="SamplePage4" />
-                            <control:NavigationViewItem  Content="WiFi" Tag="SamplePage4" />
+                            <!--These Tag values need to align with the namof of the Data QRTypes-->
+                            <control:NavigationViewItem  Content="Text" Tag="Text" />
+                            <control:NavigationViewItem  Content="Email" Tag="Email" />
+                            <control:NavigationViewItem  Content="SMS" Tag="SMS" />
+                            <control:NavigationViewItem  Content="VCard" Tag="VCard" />
+                            <control:NavigationViewItem  Content="WiFi" Tag="Wifi" />
                         </control:NavigationView.MenuItems>
                         <Frame x:Name="contentFrame">
                             
@@ -47,9 +48,66 @@
                                             <TextBlock VerticalAlignment="Top" Height="30" Text="Text"/>
                                             <TextBox Name="txtText" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText=""></TextBox>
                                         </Grid>
-                                        <Grid Name="grdCreateEmail" Visibility="Visible">
+                                        <Grid Name="grdCreateEmail" Visibility="Collapsed">
                                             <TextBlock VerticalAlignment="Top" Height="30" Text="Emailadress"/>
-                                            <TextBox Name="txtEmail" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="example@test.com"></TextBox>
+                                            <TextBox Name="txtEmailTo" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="example@test.com"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,70,0,0" Text="Subject"/>
+                                            <TextBox Name="txtEmailSubject" VerticalAlignment="Top" Height="32" Margin="0,100,0,0" CanDrag="True" AcceptsReturn="True" PlaceholderText="Subject"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,140,0,0" Text="Content"/>
+                                            <TextBox Name="txtEmailContent" VerticalAlignment="Top" Height="256" Margin="0,170,0,0" CanDrag="True" AcceptsReturn="True" PlaceholderText="Your message"></TextBox>
+                                        </Grid>
+                                        <Grid Name="grdCreateSMS" Visibility="Collapsed">
+                                            <TextBlock VerticalAlignment="Top" Height="30" Text="To Number"/>
+                                            <TextBox Name="txtSMSNumber" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="+3252465825"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,70,0,0" Text="Message"/>
+                                            <TextBox Name="txtSMSMessage" VerticalAlignment="Top" Height="128" Margin="0,100,0,0" CanDrag="True" AcceptsReturn="True" PlaceholderText="Sample message"></TextBox>
+                                        </Grid>
+                                        <Grid Name="grdCreateWifi" Visibility="Collapsed">
+                                            <TextBlock VerticalAlignment="Top" Height="30" Text="WiFi Network Name"/>
+                                            <TextBox Name="txtWifiSSID" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="MyWifiNetwork"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,70,0,0" Text="Authentication Type"/>
+                                            <ComboBox Name="cmbWifiSecurity" SelectedIndex="0" Height="30" Margin="0,100,0,0" Width="168">
+                                                <ComboBoxItem Name="WPA2">WPA2 (default)</ComboBoxItem>
+                                                <ComboBoxItem Name="WPA">WPA</ComboBoxItem>
+                                                <ComboBoxItem Name="WEP">WEP</ComboBoxItem>
+                                                <ComboBoxItem Name="Open">None</ComboBoxItem>
+                                            </ComboBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,140,0,0" Text="Password"/>
+                                            <TextBox Name="txtWifiPass" VerticalAlignment="Top" Height="32" Margin="0,170,0,0" PlaceholderText="***************"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,210,0,0" Text="Hide network name"/>
+                                            <CheckBox Name="chckWifiHidden" Content="Hidden" Height="30" Margin="0,230,0,0" VerticalAlignment="Top"/>
+                                        </Grid>
+                                        <Grid Name="grdCreateVCard" Visibility="Visible">
+                                            <TextBlock VerticalAlignment="Top" Height="30" Text="First Name"/>
+                                            <TextBox Name="txtVCardFirstName" VerticalAlignment="Top" Height="32" Margin="0,30,0,0" PlaceholderText="Jane"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,70,0,0" Text="Last Name"/>
+                                            <TextBox Name="txtVCardLastName" VerticalAlignment="Top" Height="32" Margin="0,100,0,0" PlaceholderText="Doe"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,140,0,0" Text="Mobile Phone"/>
+                                            <TextBox Name="txtVCardMobile" VerticalAlignment="Top" Height="32" Margin="0,170,0,0" PlaceholderText="+320454786"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,210,0,0" Text="Phone"/>
+                                            <TextBox Name="txtVCardPhone" VerticalAlignment="Top" Height="32" Margin="0,240,0,0" PlaceholderText="+14842918729"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,280,0,0" Text="Fax"/>
+                                            <TextBox Name="txtVCardFax" VerticalAlignment="Top" Height="32" Margin="0,310,0,0" PlaceholderText="+18143008557"></TextBox>
+                                            
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,350,0,0" Text="Email"/>
+                                            <TextBox Name="txtVCardEmail" VerticalAlignment="Top" Height="32" Margin="0,380,0,0" PlaceholderText="sample@mail.com"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,420,0,0" Text="Company"/>
+                                            <TextBox Name="txtVCardCompany" VerticalAlignment="Top" Height="32" Margin="0,450,0,0" PlaceholderText="Sample Co."></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,490,0,0" Text="Title"/>
+                                            <TextBox Name="txtVCardTitle" VerticalAlignment="Top" Height="32" Margin="0,520,0,0" PlaceholderText="Junior Engineer"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,560,0,0" Text="Street"/>
+                                            <TextBox Name="txtVCardStreet" VerticalAlignment="Top" Height="32" Margin="0,590,0,0" PlaceholderText="High street"></TextBox>
+                                            
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,630,0,0" Text="City"/>
+                                            <TextBox Name="txtVCardCity" VerticalAlignment="Top" Height="32" Margin="0,660,0,0" PlaceholderText="Mechelen"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,700,0,0" Text="ZIP"/>
+                                            <TextBox Name="txtVCardZIP" VerticalAlignment="Top" Height="32" Margin="0,730,0,0" PlaceholderText="2800"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,770,0,0" Text="State"/>
+                                            <TextBox Name="txtVCardState" VerticalAlignment="Top" Height="32" Margin="0,800,0,0" PlaceholderText="Flanders"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,840,0,0" Text="Country"/>
+                                            <TextBox Name="txtVCardCountry" VerticalAlignment="Top" Height="32" Margin="0,870,0,0" PlaceholderText="Belgium"></TextBox>
+                                            <TextBlock VerticalAlignment="Top" Height="30" Margin="0,910,0,0" Text="Website"/>
+                                            <TextBox Name="txtVCardWebsite" VerticalAlignment="Top" Height="32" Margin="0,940,0,0" PlaceholderText="https://matthiasduyck.wordpress.com/"></TextBox>
                                         </Grid>
                                     </Grid>
                                 </ScrollViewer>
@@ -81,10 +139,10 @@
             </PivotItem>
             <PivotItem Name="history" Header="Scanning History">
                 <Grid>
-                    
                     <ScrollViewer VerticalScrollBarVisibility="Visible" FontFamily="Segoe UI">
                         <Grid Margin="20,20,20,20">
                             <TextBlock FontWeight="SemiBold" FontSize="21" Margin="20,5,0,0">Previously Scanned codes:</TextBlock>
+                            <Button Name="btnClearHistory" Click="BtnClearHistory_Click" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,5,15,0">Clear History</Button>
                             <ListView Margin="0,60,0,0" x:Name="lvHistory">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">

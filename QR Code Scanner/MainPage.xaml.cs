@@ -189,18 +189,24 @@ namespace QR_Code_Scanner
         }
         private async void Application_Suspending(object sender, SuspendingEventArgs e)
         {
-            //Debug.WriteLine("Application Suspending");
-            var deferral = e.SuspendingOperation.GetDeferral();
+            try
+            {
+                //Debug.WriteLine("Application Suspending");
+                var deferral = e.SuspendingOperation.GetDeferral();
 
-            this.scanningTimer.Dispose();
-            this.cameraManager.ScanForQRcodes = false;
-            this.qrAnalyzerCancellationTokenSource.Cancel();
+                if (this.scanningTimer != null) { this.scanningTimer.Dispose(); }
+                this.cameraManager.ScanForQRcodes = false;
+                this.qrAnalyzerCancellationTokenSource.Cancel();
 
-            await cameraManager.CleanupCameraAsync();
+                await cameraManager.CleanupCameraAsync();
 
-            this.barcodeManager = null;
-            this.cameraManager = null;
-            deferral.Complete();
+                this.barcodeManager = null;
+                this.cameraManager = null;
+                deferral.Complete();
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         private void TabsView_SelectionChanged(object sender, SelectionChangedEventArgs e)

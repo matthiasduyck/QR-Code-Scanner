@@ -75,6 +75,8 @@ namespace QR_Code_Scanner_PRO
             Application.Current.Resuming += Current_Resuming;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             cameraManager.EnumerateCameras(cmbCameraSelect);
+
+            ResetAllQRCreateVisibility();
         }
         static void CrashHandler(object sender, System.UnhandledExceptionEventArgs args)
         {
@@ -359,18 +361,19 @@ namespace QR_Code_Scanner_PRO
         }
         private async void Application_Suspending(object sender, SuspendingEventArgs e)
         {
-            //Debug.WriteLine("Application Suspending");
-            var deferral = e.SuspendingOperation.GetDeferral();
-
-            this.scanningTimer.Dispose();
-            this.cameraManager.ScanForQRcodes = false;
-            this.qrAnalyzerCancellationTokenSource.Cancel();
-
-            await cameraManager.CleanupCameraAsync();
-
-            this.barcodeManager = null;
-            this.cameraManager = null;
-            deferral.Complete();
+            try {
+                //Debug.WriteLine("Application Suspending");
+                var deferral = e.SuspendingOperation.GetDeferral();
+                if (this.scanningTimer != null) { this.scanningTimer.Dispose(); }
+                this.cameraManager.ScanForQRcodes = false;
+                this.qrAnalyzerCancellationTokenSource.Cancel();
+                await cameraManager.CleanupCameraAsync();
+                this.barcodeManager = null;
+                this.cameraManager = null;
+                deferral.Complete();
+            }
+            catch (Exception ex) {
+            }
         }
 
         private void TabsView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -436,18 +439,51 @@ namespace QR_Code_Scanner_PRO
 
         private void BtnGenerateQR_Click(object sender, RoutedEventArgs e)
         {
-            //grab values
-            var text = this.txtText.Text;
-            
-            //verify they are filled in
-            if (string.IsNullOrEmpty(text))
+            //determine active creation field
+            QRType qrData = null;
+            string text;
+            try
             {
-                MessageManager.ShowMessageToUserAsync("Text is empty.");
+                if (grdCreateEmail.Visibility == Visibility.Visible)
+                {
+                    qrData = new Email(txtEmailTo.Text, txtEmailSubject.Text, txtEmailContent.Text);
+                }
+                else if (grdCreateSMS.Visibility == Visibility.Visible)
+                {
+                    qrData = new SMS(txtSMSNumber.Text, txtSMSMessage.Text);
+                }
+                else if (grdCreateVCard.Visibility == Visibility.Visible)
+                {
+                    qrData = new VCard(txtVCardFirstName.Text, txtVCardLastName.Text, txtVCardMobile.Text, txtVCardPhone.Text, txtVCardFax.Text, txtVCardEmail.Text, 
+                        txtVCardCompany.Text, txtVCardTitle.Text, txtVCardStreet.Text, txtVCardCity.Text, txtVCardZIP.Text, txtVCardState.Text, txtVCardCountry.Text, txtVCardWebsite.Text);
+                }
+                else if (grdCreateWifi.Visibility == Visibility.Visible)
+                {
+                    qrData = new Wifi(txtWifiSSID.Text, txtWifiPass.Text, chckWifiHidden.IsChecked ?? false, ((ComboBoxItem)cmbWifiSecurity.SelectedItem).Content.ToString());
+                }
+
+                if (qrData != null)
+                {
+                    text = qrData.ConvertToRawDataString();
+                }
+                else
+                {
+                    //text is default fallback
+                    text = txtText.Text;
+                }
+
+                if (string.IsNullOrEmpty(text))
+                {
+                    throw new ArgumentException("No text to create a QR code found.");
+                }
+            }
+            catch(ArgumentException argEx)
+            {
+                MessageManager.ShowMessageToUserAsync("Data not valid: " + argEx.Message);
                 return;
             }
 
-            
-
+            //todo, more validation here?
 
             //create image
             var options = new QrCodeEncodingOptions
@@ -641,7 +677,48 @@ namespace QR_Code_Scanner_PRO
 
         private void CreateQRCodeNavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
         {
+            if (args.IsSettingsInvoked == true)
+            {
+                //not supported at this time
+            }
+            else if (args.InvokedItemContainer != null)
+            {
+                var navItemTag = args.InvokedItemContainer.Tag.ToString();
+                ResetAllQRCreateVisibility();
+                switch (navItemTag)
+                {
+                    case nameof(Email):
+                        grdCreateEmail.Visibility = Visibility.Visible;
+                        break;
+                    case nameof(SMS):
+                        grdCreateSMS.Visibility = Visibility.Visible;
+                        break;
+                    case nameof(VCard):
+                        grdCreateVCard.Visibility = Visibility.Visible;
+                        break;
+                    case nameof(Wifi):
+                        grdCreateWifi.Visibility = Visibility.Visible;
+                        break;
+                    default:
+                        grdCreateText.Visibility = Visibility.Visible;
+                        break;
+                }
+            }
+        }
 
+        private void ResetAllQRCreateVisibility()
+        {
+            grdCreateEmail.Visibility = Visibility.Collapsed;
+            grdCreateText.Visibility = Visibility.Collapsed;
+            grdCreateSMS.Visibility = Visibility.Collapsed;
+            grdCreateVCard.Visibility = Visibility.Collapsed;
+            grdCreateWifi.Visibility = Visibility.Collapsed;
+        }
+
+        private void BtnClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            historyManager.ClearHistory();
+            this.lvHistory.ItemsSource = null;
         }
     }
     // This wrapper is needed because the base class cannot be linked in the main page
