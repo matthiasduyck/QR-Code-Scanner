@@ -35,6 +35,7 @@ using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using QR_Library.Data.QRTypes;
 using QR_Library.Helpers;
+using System.Threading.Tasks;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -49,6 +50,7 @@ namespace QR_Code_Scanner_PRO
         BarcodeManager barcodeManager;
         HistoryManager historyManager;
         QRDataManager qrDataManager;
+        SettingsManager SettingsManager;
         System.Threading.Timer scanningTimer;
         CancellationTokenSource qrAnalyzerCancellationTokenSource;
 
@@ -67,16 +69,20 @@ namespace QR_Code_Scanner_PRO
 
             QrCodeDecodedDelegate handler = new QrCodeDecodedDelegate(handleQRcodeFound);
             qrAnalyzerCancellationTokenSource = new CancellationTokenSource();
-            cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource);
+
+            SettingsManager = new SettingsManager();
+            cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource, SettingsManager);
             barcodeManager = new BarcodeManager();
             historyManager = new HistoryManager();
             qrDataManager = new QRDataManager();
+            
             Application.Current.Suspending += Application_Suspending;
             Application.Current.Resuming += Current_Resuming;
             Application.Current.LeavingBackground += Current_LeavingBackground;
             cameraManager.EnumerateCameras(cmbCameraSelect);
 
             ResetAllQRCreateVisibility();
+            grdSettings.Visibility = Visibility.Collapsed;
         }
         static void CrashHandler(object sender, System.UnhandledExceptionEventArgs args)
         {
@@ -115,7 +121,7 @@ namespace QR_Code_Scanner_PRO
 
 
         /// <summary>
-        /// TODO Method to be triggered by delegate to display message to start connecting to a network
+        /// Method to be triggered by delegate to display message to start connecting to a network
         /// </summary>
         /// <param name="qrmessage"></param>
         public async void handleQRcodeFound(string qrmessage, bool fromScanner)
@@ -257,7 +263,7 @@ namespace QR_Code_Scanner_PRO
             {
                 this.rnWifiResultNetwork.Text = wifiData.Ssid;
             }
-            if (wifiData.WifiAccessPointSecurityType!=null)
+            if (wifiData.WifiAccessPointSecurityType != null)
             {
                 this.rnWifiResultSecurity.Text = Enum.GetName(typeof(WifiSecurity), wifiData.WifiAccessPointSecurityType);
             }
@@ -341,7 +347,7 @@ namespace QR_Code_Scanner_PRO
             }
 
 
-            
+
         }
 
         private async void CopyTextToClipboardHandlerAsync(IUICommand command)
@@ -394,7 +400,7 @@ namespace QR_Code_Scanner_PRO
                 DeActivateCameraPreviewAndScan();
                 this.cameraManager.ScanForQRcodes = false;
                 ChangeAppStatus(AppStatus.waitingForUserInput);
-                if(!string.IsNullOrEmpty(activeTabName) && activeTabName == "history")
+                if (!string.IsNullOrEmpty(activeTabName) && activeTabName == "history")
                 {
                     RetrieveAndLoadHistory();
                 }
@@ -437,7 +443,7 @@ namespace QR_Code_Scanner_PRO
             }
         }
 
-        private void BtnGenerateQR_Click(object sender, RoutedEventArgs e)
+        private async void BtnGenerateQR_Click(object sender, RoutedEventArgs e)
         {
             //determine active creation field
             QRType qrData = null;
@@ -454,7 +460,7 @@ namespace QR_Code_Scanner_PRO
                 }
                 else if (grdCreateVCard.Visibility == Visibility.Visible)
                 {
-                    qrData = new VCard(txtVCardFirstName.Text, txtVCardLastName.Text, txtVCardMobile.Text, txtVCardPhone.Text, txtVCardFax.Text, txtVCardEmail.Text, 
+                    qrData = new VCard(txtVCardFirstName.Text, txtVCardLastName.Text, txtVCardMobile.Text, txtVCardPhone.Text, txtVCardFax.Text, txtVCardEmail.Text,
                         txtVCardCompany.Text, txtVCardTitle.Text, txtVCardStreet.Text, txtVCardCity.Text, txtVCardZIP.Text, txtVCardState.Text, txtVCardCountry.Text, txtVCardWebsite.Text);
                 }
                 else if (grdCreateWifi.Visibility == Visibility.Visible)
@@ -477,7 +483,7 @@ namespace QR_Code_Scanner_PRO
                     throw new ArgumentException("No text to create a QR code found.");
                 }
             }
-            catch(ArgumentException argEx)
+            catch (ArgumentException argEx)
             {
                 MessageManager.ShowMessageToUserAsync("Data not valid: " + argEx.Message);
                 return;
@@ -485,13 +491,15 @@ namespace QR_Code_Scanner_PRO
 
             //todo, more validation here?
 
+            var imageWidthHeightSetting = (await SettingsManager.GetSettingsAsync()).QRImageResolution;
+            var imageWidthHeight = imageWidthHeightSetting != null ? imageWidthHeightSetting.SettingItem : 200;
             //create image
             var options = new QrCodeEncodingOptions
             {
                 DisableECI = true,
                 CharacterSet = "UTF-8",
-                Width = 512,
-                Height = 512,
+                Width = imageWidthHeight,
+                Height = imageWidthHeight,
             };
             var qr = new ZXing.BarcodeWriter();
             qr.Options = options;
@@ -506,36 +514,40 @@ namespace QR_Code_Scanner_PRO
 
         private async void BtnSaveFile_Click(object sender, RoutedEventArgs e)
         {
-            var _bitmap = new RenderTargetBitmap();
-            //verify they are filled in
-            if (this.imgQrCode.Source == null)
+            // Verify if the image source is filled in
+            if (this.imgQrCode.Source == null || !(this.imgQrCode.Source is WriteableBitmap))
             {
                 MessageManager.ShowMessageToUserAsync("No image to save, please generate one first.");
                 return;
             }
-            await _bitmap.RenderAsync(this.imgQrCode);    //-----> This is my ImageControl.
+
+            WriteableBitmap writeableBitmap = this.imgQrCode.Source as WriteableBitmap;
 
             var savePicker = new FileSavePicker();
             savePicker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
             savePicker.FileTypeChoices.Add("Image", new List<string>() { ".jpg" });
             savePicker.SuggestedFileName = "QRCodeImage_" + DateTime.Now.ToString("yyyyMMddhhmmss");
+
             StorageFile savefile = await savePicker.PickSaveFileAsync();
             if (savefile == null)
                 return;
 
-            var pixels = await _bitmap.GetPixelsAsync();
             using (IRandomAccessStream stream = await savefile.OpenAsync(FileAccessMode.ReadWrite))
             {
-                var encoder = await
-                BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
-                byte[] bytes = pixels.ToArray();
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
+
+                // Get pixel data directly from the WriteableBitmap
+                Stream pixelStream = writeableBitmap.PixelBuffer.AsStream();
+                byte[] pixels = new byte[pixelStream.Length];
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+
                 encoder.SetPixelData(BitmapPixelFormat.Bgra8,
                                         BitmapAlphaMode.Ignore,
-                                        (uint)_bitmap.PixelWidth,
-                                    (uint)_bitmap.PixelHeight,
-                                        200,
-                                        200,
-                                        bytes);
+                                        (uint)writeableBitmap.PixelWidth,
+                                        (uint)writeableBitmap.PixelHeight,
+                                        96, // this is just dpi
+                                        96, // this is just dpi
+                                        pixels);
 
                 await encoder.FlushAsync();
             }
@@ -609,7 +621,7 @@ namespace QR_Code_Scanner_PRO
             }
         }
 
-        
+
         private void GrdClickCapture_Tapped(object sender, TappedRoutedEventArgs e)
         {
             // The parent Grid was click, dismiss the result window
@@ -655,9 +667,9 @@ namespace QR_Code_Scanner_PRO
         private async void RetrieveAndLoadHistory()
         {
             var history = await historyManager.RetrieveHistory();
-            if (history!=null && history.Any())
+            if (history != null && history.Any())
             {
-                history = history.Select(x=> qrDataManager.UpgradeHistoryItem(x)).ToList();
+                history = history.Select(x => qrDataManager.UpgradeHistoryItem(x)).ToList();
                 foreach (var historyItem in history)
                 {
                     historyItem.GetReadableText();
@@ -719,6 +731,168 @@ namespace QR_Code_Scanner_PRO
         {
             historyManager.ClearHistory();
             this.lvHistory.ItemsSource = null;
+        }
+
+        private void btnHelp_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.System.Launcher.LaunchUriAsync(new Uri("https://matthiasduyck.wordpress.com/qr-code-scanner/help-faq/"));
+        }
+
+        private async void btnTglSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.btnTglSettings.IsChecked ?? false)
+            {
+                this.grdSettings.Visibility = Visibility.Visible;
+                await loadSettingsAsync();
+            }
+            else
+            {
+                this.grdSettings.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void lnkSettingsClear_Click(object sender, RoutedEventArgs e)
+        {
+            await SettingsManager.DeleteSettings();
+            await loadSettingsAsync();
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            closeSettings();
+        }
+
+        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            saveSettings();
+            closeSettings();
+        }
+        private void closeSettings(){
+            this.grdSettings.Visibility = Visibility.Collapsed;
+            this.btnTglSettings.IsChecked = false;
+        }
+
+        private async Task loadSettingsAsync()
+        {
+            QRSettings settings = new QRSettings();
+            try
+            {
+                settings = await SettingsManager.RetrieveOrCreateSettings();
+            }
+            catch (Exception ex)
+            {
+                // Todo, should we provide more information to the user here?
+                await ShowSettingsLoadingFailedMessageBoxAsync();
+            }
+
+            nmbQRCodeImageResolution.Value = settings.QRImageResolution != null ? settings.QRImageResolution.SettingItem : nmbQRCodeImageResolution.Value;
+            var settingsRefreshRate = settings.ScanningRefreshRate;
+            if (settingsRefreshRate != null)
+            {
+                switch (settingsRefreshRate.SettingItem)
+                {
+                    case 50:
+                        cmbRefreshRate.SelectedIndex = 0;
+                        break;
+                    case 100:
+                        cmbRefreshRate.SelectedIndex = 1;
+                        break;
+                    case 150:
+                        cmbRefreshRate.SelectedIndex = 2;
+                        break;
+                    case 200:
+                        cmbRefreshRate.SelectedIndex = 3;
+                        break;
+                    default:
+                        cmbRefreshRate.SelectedIndex = 2;
+                        break;
+                }
+            }
+
+            var settingsScanningResolution = settings.ScanningResolution;
+            if (settingsScanningResolution != null)
+            {
+                switch (settingsScanningResolution.SettingItem)
+                {
+                    case ScanningResolutionEnum.lowest:
+                        cmbScanResolution.SelectedIndex = 0;
+                        break;
+                    case ScanningResolutionEnum.auto:
+                        cmbScanResolution.SelectedIndex = 1;
+                        break;
+                    case ScanningResolutionEnum.highest:
+                        cmbScanResolution.SelectedIndex = 2;
+                        break;
+                    default:
+                        cmbScanResolution.SelectedIndex = 1;
+                        break;
+                }
+            }
+        }
+
+        private async Task ShowSettingsLoadingFailedMessageBoxAsync()
+        {
+            var msgbox = new MessageDialog("Loading settings file failed. You can try deleting it.");
+            msgbox.Commands.Add(new UICommand(
+            "Delete",
+            new UICommandInvokedHandler(this.DeleteSettingsHandler)));
+
+            // Set the command that will be invoked by default
+            msgbox.DefaultCommandIndex = 0;
+
+            // Set the command to be invoked when escape is pressed
+            msgbox.CancelCommandIndex = 1;
+
+            // Show the message dialog
+            await msgbox.ShowAsync();
+        }
+        private void DeleteSettingsHandler(IUICommand command)
+        {
+            _ = SettingsManager.DeleteSettings();
+            _ = loadSettingsAsync();
+        }
+
+        private void saveSettings()
+        {
+            var qRSettings = new QRSettings();
+            qRSettings.QRImageResolution.SettingItem = (int)nmbQRCodeImageResolution.Value;
+            var cmbRefreshRateValue = ((ComboBoxItem)cmbRefreshRate.SelectedItem).Content.ToString();
+            switch (cmbRefreshRateValue)
+            {
+                case "50":
+                    qRSettings.ScanningRefreshRate = new NullableQRSettingItem<int>(50);
+                    break;
+                case "100":
+                    qRSettings.ScanningRefreshRate = new NullableQRSettingItem<int>(100);
+                    break;
+                case "150":
+                    qRSettings.ScanningRefreshRate = new NullableQRSettingItem<int>(150);
+                    break;
+                case "200":
+                    qRSettings.ScanningRefreshRate = new NullableQRSettingItem<int>(200);
+                    break;
+                default:
+                    qRSettings.ScanningRefreshRate = new NullableQRSettingItem<int>(150);
+                    break;
+            }
+            var cmbScanResolutionValue = ((ComboBoxItem)cmbScanResolution.SelectedItem).Content.ToString();
+            switch (cmbScanResolutionValue)
+            {
+                case "lowest":
+                    qRSettings.ScanningResolution = new NullableQRSettingItem<ScanningResolutionEnum>(ScanningResolutionEnum.lowest);
+                    break;
+                case "highest":
+                    qRSettings.ScanningResolution = new NullableQRSettingItem<ScanningResolutionEnum>(ScanningResolutionEnum.highest);
+                    break;
+                case "auto":
+                    qRSettings.ScanningResolution = new NullableQRSettingItem<ScanningResolutionEnum>(ScanningResolutionEnum.auto);
+                    break;
+                default:
+                    qRSettings.ScanningResolution = new NullableQRSettingItem<ScanningResolutionEnum>(ScanningResolutionEnum.auto);
+                    break;
+            }
+
+            SettingsManager.ReplaceExistingSetting(qRSettings);
         }
     }
     // This wrapper is needed because the base class cannot be linked in the main page

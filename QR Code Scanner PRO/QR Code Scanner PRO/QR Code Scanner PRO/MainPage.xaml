@@ -316,5 +316,54 @@
                 </Grid>
             </StackPanel>
         </Grid>
+        <Grid Name="grdSettings" Visibility="Visible" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <ScrollViewer>
+                <Grid>
+                    <StackPanel Margin="20,20,20,100">
+                        <TextBlock FontWeight="SemiBold" FontSize="21" Margin="0,0,0,30">Settings</TextBlock>
+                        <StackPanel Margin="0,5,0,20">
+                            <TextBlock Margin="0,0,0,10" FontWeight="SemiBold" FontSize="20">Scanning options</TextBlock>
+                            <TextBlock Margin="0,0,0,5" FontWeight="Normal" FontSize="18">Scanning refresh rate</TextBlock>
+                            <TextBlock FontSize="10" Margin="0,0,0,5">(in milliseconds lower is faster, but requires more CPU)</TextBlock>
+                            <ComboBox Name="cmbRefreshRate" Margin="0,0,0,20">
+                                <ComboBoxItem Name="refresh50">50</ComboBoxItem>
+                                <ComboBoxItem Name="refresh100">100</ComboBoxItem>
+                                <ComboBoxItem Name="refresh150" IsSelected="True">150 (default)</ComboBoxItem>
+                                <ComboBoxItem Name="refresh200">200</ComboBoxItem>
+                            </ComboBox>
+                            <TextBlock Margin="0,0,0,5" FontWeight="Normal" FontSize="18">Scanning Resolution</TextBlock>
+                            <TextBlock FontSize="10" Margin="0,0,0,5">(higher is better but requires more CPU)</TextBlock>
+                            <ComboBox Name="cmbScanResolution" Margin="0,0,0,20">
+                                <ComboBoxItem Name="lowest">lowest</ComboBoxItem>
+                                <ComboBoxItem Name="auto" IsSelected="True">auto (default)</ComboBoxItem>
+                                <ComboBoxItem Name="highest">highest</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,5,0,20">
+                            <TextBlock Margin="0,0,0,10" FontWeight="SemiBold" FontSize="20">QR image creation options</TextBlock>
+                            <TextBlock Margin="0,0,0,5" FontWeight="Normal" FontSize="18">QR code image resolution</TextBlock>
+                            <TextBlock FontSize="10" Margin="0,0,0,5">(in pixels width and height)</TextBlock>
+                            <control:NumberBox Minimum="10" Maximum="5000" Width="100" HorizontalAlignment="Left" x:Name="nmbQRCodeImageResolution" Value="200"  SpinButtonPlacementMode="Compact" SmallChange="10" LargeChange="100" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+            <Grid VerticalAlignment="Bottom" Height="100" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="Gray" BorderThickness="1">
+                <StackPanel Margin="20,20,20,20" >
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Name="btnSaveSettings" Click="btnSaveSettings_Click" Margin="0,0,15,0">Save</Button>
+                        <Button Name="btnCancel" Click="btnCancel_Click" Margin="0,0,15,0">Cancel</Button>
+                        <HyperlinkButton Name="lnkSettingsClear" Click="lnkSettingsClear_Click" Margin="0,0,15,0">Clear custom settings</HyperlinkButton>
+                    </StackPanel>
+
+                    <TextBlock Margin="0,0,0,0">Restart for changes to take effect.</TextBlock>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <Grid Name="grdSharedContent" Margin="12,0,12,0">
+            <HyperlinkButton Name="donateLnk" Content="Donate to the developer" Margin="0,0,110,6" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            <AppBarToggleButton Name="btnTglSettings" Width="40" Click="btnTglSettings_Click" Icon="Setting" LabelPosition="Collapsed" Label="SymbolIcon" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
+            <AppBarButton Name="btnHelp" Click="btnHelp_Click" Width="40" Icon="Help" LabelPosition="Collapsed" Margin="0,0,55,0" Label="SymbolIcon" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
+        </Grid>
     </Grid>
 </Page>

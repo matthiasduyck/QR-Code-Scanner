@@ -143,6 +143,12 @@
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\QRCodeType.cs">
       <Link>Business\QRCodeType.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\QRSettings.cs">
+      <Link>Business\QRSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\ScanningResolutionEnum.cs">
+      <Link>Business\ScanningResolutionEnum.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\WifiAccessPointData.cs">
       <Link>Business\WifiAccessPointData.cs</Link>
     </Compile>
@@ -181,6 +187,9 @@
     </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\QRDataManager.cs">
       <Link>Managers\QRDataManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\SettingsManager.cs">
+      <Link>Managers\SettingsManager.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -227,6 +236,9 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json.Schema">
+      <Version>3.0.15</Version>
     </PackageReference>
     <PackageReference Include="ZXing.Net">
       <Version>0.16.7</Version>
