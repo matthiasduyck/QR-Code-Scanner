@@ -150,6 +150,13 @@ namespace QR_Code_Scanner_PRO
             }
             else
             {
+                // load it into clipboard if settings say so:
+                var CopyResultToClipboardInstantlyWhenFoundSetting = (await SettingsManager.GetSettingsAsync()).CopyResultToClipboardInstantlyWhenFound;
+                var copyResultToClipboardInstantlyWhenFound = CopyResultToClipboardInstantlyWhenFoundSetting != null ? CopyResultToClipboardInstantlyWhenFoundSetting.SettingItem : false;
+                if (copyResultToClipboardInstantlyWhenFound)
+                {
+                    QRCopyToClipboard();
+                }
 
                 var qrType = qrDataManager.DetermineQRType(qrmessage);
 
@@ -349,16 +356,16 @@ namespace QR_Code_Scanner_PRO
 
 
         }
-
-        private async void CopyTextToClipboardHandlerAsync(IUICommand command)
-        {
-            ChangeAppStatus(AppStatus.waitingForUserInput);
-            var text = command.Id as string;
-            Helpers.CopyToClipboard(text);
-            //enable scanning again
-            this.cameraManager.ScanForQRcodes = true;
-            ChangeAppStatus(AppStatus.scanningForQR);
-        }
+        //not used in PRO
+        //private async void CopyTextToClipboardHandlerAsync(IUICommand command)
+        //{
+        //    ChangeAppStatus(AppStatus.waitingForUserInput);
+        //    var text = command.Id as string;
+        //    Helpers.CopyToClipboard(text);
+        //    //enable scanning again
+        //    this.cameraManager.ScanForQRcodes = true;
+        //    ChangeAppStatus(AppStatus.scanningForQR);
+        //}
 
         protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
@@ -659,6 +666,10 @@ namespace QR_Code_Scanner_PRO
 
         private void QRCopyToClipboard_Click(object sender, RoutedEventArgs e)
         {
+            QRCopyToClipboard();
+        }
+        private void QRCopyToClipboard()
+        {
             var specificLastResult = qrDataManager.UpgradeHistoryItem(lastResult);
             specificLastResult.GetReadableText();
             Helpers.CopyToClipboard(specificLastResult.ReadableText);
@@ -786,6 +797,7 @@ namespace QR_Code_Scanner_PRO
             }
 
             nmbQRCodeImageResolution.Value = settings.QRImageResolution != null ? settings.QRImageResolution.SettingItem : nmbQRCodeImageResolution.Value;
+            chckCopyToClipboardImmediately.IsChecked = settings.CopyResultToClipboardInstantlyWhenFound != null ? settings.CopyResultToClipboardInstantlyWhenFound.SettingItem : chckCopyToClipboardImmediately.IsChecked;
             var settingsRefreshRate = settings.ScanningRefreshRate;
             if (settingsRefreshRate != null)
             {
@@ -856,6 +868,7 @@ namespace QR_Code_Scanner_PRO
         {
             var qRSettings = new QRSettings();
             qRSettings.QRImageResolution.SettingItem = (int)nmbQRCodeImageResolution.Value;
+            qRSettings.CopyResultToClipboardInstantlyWhenFound.SettingItem = (bool)chckCopyToClipboardImmediately.IsChecked;
             var cmbRefreshRateValue = ((ComboBoxItem)cmbRefreshRate.SelectedItem).Content.ToString();
             switch (cmbRefreshRateValue)
             {

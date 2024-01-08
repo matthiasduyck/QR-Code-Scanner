@@ -345,6 +345,11 @@
                             <TextBlock FontSize="10" Margin="0,0,0,5">(in pixels width and height)</TextBlock>
                             <control:NumberBox Minimum="10" Maximum="5000" Width="100" HorizontalAlignment="Left" x:Name="nmbQRCodeImageResolution" Value="200"  SpinButtonPlacementMode="Compact" SmallChange="10" LargeChange="100" />
                         </StackPanel>
+                        <StackPanel Margin="0,5,0,20">
+                            <TextBlock Margin="0,0,0,10" FontWeight="SemiBold" FontSize="20">General options</TextBlock>
+                            <TextBlock Margin="0,0,0,5" FontWeight="Normal" FontSize="18">Copy results to clipboard immediately when found.</TextBlock>
+                            <CheckBox Name="chckCopyToClipboardImmediately"></CheckBox>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
