@@ -60,7 +60,7 @@ namespace QR_Code_Scanner
 
             QrCodeDecodedDelegate handler = new QrCodeDecodedDelegate(handleQRcodeFound);
             qrAnalyzerCancellationTokenSource = new CancellationTokenSource();
-            cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource);
+            cameraManager = new QRCameraManager(PreviewControl, Dispatcher, handler, qrAnalyzerCancellationTokenSource, null);
             barcodeManager = new BarcodeManager();
             Application.Current.Suspending += Application_Suspending;
             Application.Current.Resuming += Current_Resuming;
@@ -68,13 +68,14 @@ namespace QR_Code_Scanner
             cameraManager.EnumerateCameras(cmbCameraSelect);
 
             this.donateLnk.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
-            this.donateLnkGenerate.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
-            this.donateLnkOpen.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
+            //this.donateLnkGenerate.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
+            //this.donateLnkOpen.NavigateUri = new Uri("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C6Q6ETR8PMDUL&source=url");
             PreviewHistoryFeature();
             if (NagwareManager.ShouldNag())
             {
                 GrdNagware.Visibility = Visibility.Visible;
             }
+            grdSettings.Visibility = Visibility.Collapsed;
         }
 
         private QrCodeEncodingOptions GetQREncodingOptions
@@ -427,6 +428,40 @@ namespace QR_Code_Scanner
         private void BtnCloseNagware_Click(object sender, RoutedEventArgs e)
         {
             GrdNagware.Visibility = Visibility.Collapsed;
+        }
+
+        private void btnHelp_Click(object sender, RoutedEventArgs e)
+        {
+            Windows.System.Launcher.LaunchUriAsync(new Uri( "https://matthiasduyck.wordpress.com/qr-code-scanner/help-faq/"));
+        }
+
+        private void btnTglSettings_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.btnTglSettings.IsChecked??false)
+            {
+                this.grdSettings.Visibility = Visibility.Visible;
+                //todo load state of inputs from settings file if exists
+            }
+            else
+            {
+                this.grdSettings.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void lnkSettingsClear_Click(object sender, RoutedEventArgs e)
+        {
+            //todo, simply delete the settingsfile
+        }
+
+        private void btnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            this.grdSettings.Visibility = Visibility.Collapsed;
+            this.btnTglSettings.IsChecked = false;
+        }
+
+        private void btnSaveSettings_Click(object sender, RoutedEventArgs e)
+        {
+            //todo write values to file
         }
     }
     // This wrapper is needed because the base class cannot be linked in the main page
