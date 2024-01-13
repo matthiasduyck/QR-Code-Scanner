@@ -50,7 +50,7 @@ namespace QR_Code_Scanner_PRO
         BarcodeManager barcodeManager;
         HistoryManager historyManager;
         QRDataManager qrDataManager;
-        SettingsManager SettingsManager;
+        ISettingsManager SettingsManager;
         System.Threading.Timer scanningTimer;
         CancellationTokenSource qrAnalyzerCancellationTokenSource;
 
@@ -130,6 +130,7 @@ namespace QR_Code_Scanner_PRO
             lastResult = new HistoryQRItem() { TextContent = qrmessage };
             lastResultFromScanner = fromScanner;
             ChangeAppStatus(AppStatus.waitingForUserInput);
+            this.cameraManager.ScanForQRcodes = false;
 
             MessageDialog msgbox;
             if (string.IsNullOrEmpty(qrmessage))
@@ -788,7 +789,7 @@ namespace QR_Code_Scanner_PRO
             QRSettings settings = new QRSettings();
             try
             {
-                settings = await SettingsManager.RetrieveOrCreateSettings();
+                settings = (QRSettings)await SettingsManager.RetrieveOrCreateSettings();
             }
             catch (Exception ex)
             {

@@ -131,6 +131,9 @@
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\AppStatus.cs">
       <Link>Business\AppStatus.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\BaseQRSettings.cs">
+      <Link>Business\BaseQRSettings.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\ComboboxItem.cs">
       <Link>Business\ComboboxItem.cs</Link>
     </Compile>
@@ -139,6 +142,9 @@
     </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\HistoryQRItem.cs">
       <Link>Business\HistoryQRItem.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\IQRSettings.cs">
+      <Link>Business\IQRSettings.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Business\QRCodeType.cs">
       <Link>Business\QRCodeType.cs</Link>
@@ -176,8 +182,14 @@
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\BarcodeManager.cs">
       <Link>Managers\BarcodeManager.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\BaseSettingsManager.cs">
+      <Link>Managers\BaseSettingsManager.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\HistoryManager.cs">
       <Link>Managers\HistoryManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\ISettingsManager.cs">
+      <Link>Managers\ISettingsManager.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\QR Code Shared Library\QR Code Shared Library\QR Library\Managers\MessageManager.cs">
       <Link>Managers\MessageManager.cs</Link>
